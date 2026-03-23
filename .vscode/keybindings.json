@@ -1,0 +1,12 @@
+[
+  {
+    "key": "ctrl+shift+r",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Real Time: Start"
+  },
+  {
+    "key": "ctrl+shift+q",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Real Time: Stop"
+  }
+]

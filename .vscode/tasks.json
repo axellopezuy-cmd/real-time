@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Real Time: Start",
+      "type": "shell",
+      "command": "realtime",
+      "args": ["${fileDirname}"],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "close": false
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "Real Time: Stop",
+      "type": "shell",
+      "command": "pkill -f realtime",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 90a79a6884690025105436673504e3cbd6b62baaccd8e58201cf0c47dad996e4 # shrinks to file_a = ParsedFile { path: "/fake/file0.html", objects: [], directives: [] }, file_b = ParsedFile { path: "/fake/file1.html", objects: [], directives: [Directriz { selector: "div", property: "color", value: "red", source_file: None }] }, new_objects = [], new_directives = []

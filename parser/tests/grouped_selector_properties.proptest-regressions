@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc f491d9f10e3a862b515d3e6c7ea3f261517640f4e7a6e1b05a73d26b28de26a6 # shrinks to selectors = ["footer", "footer"], declarations = [("color", "red")]

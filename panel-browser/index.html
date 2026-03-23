@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Time - Panel Browser</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    #status {
+      padding: 6px 14px;
+      background: #1a1a2e;
+      color: #888;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid #2a2a3e;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .st-ok { color: #4caf50; }
+    .st-err { color: #f44336; }
+    #toolbar {
+      padding: 4px 14px;
+      background: #151525;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      border-bottom: 1px solid #2a2a3e;
+      flex-shrink: 0;
+    }
+    #toolbar button {
+      background: #2a2a3e;
+      color: #aaa;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    #toolbar button:hover { background: #3a3a5e; color: #ddd; }
+    #toolbar button.active { background: #38bdf8; color: #000; }
+    #preview-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #fff;
+    }
+    #preview {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+    }
+    #overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">
+    <span id="conn" class="st-err">Loading WASM...</span>
+    <span id="info"></span>
+  </div>
+  <div id="toolbar">
+    <button id="btn-outlines">Outlines</button>
+    <button id="btn-labels">Labels</button>
+    <span style="color:#555;font-size:11px;margin-left:auto" id="viewport-info"></span>
+  </div>
+  <div id="preview-container">
+    <iframe id="preview" sandbox="allow-same-origin"></iframe>
+    <canvas id="overlay"></canvas>
+  </div>
+
+  <script type="module">
+    import init, { parse } from './src/wasm/parser_wasm.js';
+
+    const preview = document.getElementById('preview');
+    const overlay = document.getElementById('overlay');
+    const ctx = overlay.getContext('2d');
+    const connEl = document.getElementById('conn');
+    const infoEl = document.getElementById('info');
+    const vpInfo = document.getElementById('viewport-info');
+    const btnOutlines = document.getElementById('btn-outlines');
+    const btnLabels = document.getElementById('btn-labels');
+
+    let showOutlines = false;
+    let showLabels = false;
+    let iframeReady = false;
+    let lastHtml = '';
+    let lastCss = '';
+    let pendingFiles = null;
+    let rafId = null;
+
+    // --- WASM init ---
+    init().then(() => {
+      connEl.textContent = 'WASM ready';
+      connEl.className = 'st-ok';
+      connect();
+      resizeOverlay();
+    });
+
+    // --- Toolbar ---
+    btnOutlines.addEventListener('click', () => {
+      showOutlines = !showOutlines;
+      btnOutlines.classList.toggle('active', showOutlines);
+      renderOverlay();
+    });
+    btnLabels.addEventListener('click', () => {
+      showLabels = !showLabels;
+      btnLabels.classList.toggle('active', showLabels);
+      renderOverlay();
+    });
+
+    function resizeOverlay() {
+      const r = preview.getBoundingClientRect();
+      overlay.width = r.width;
+      overlay.height = r.height;
+      vpInfo.textContent = `${Math.round(r.width)}×${Math.round(r.height)}`;
+      renderOverlay();
+    }
+    window.addEventListener('resize', resizeOverlay);
+
+    // --- Render with WASM ---
+    function scheduleRender(files) {
+      pendingFiles = files;
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (pendingFiles) {
+          renderFiles(pendingFiles);
+          pendingFiles = null;
+        }
+      });
+    }
+
+    // Cache of raw file contents on browser side
+    let cachedFiles = {};
+    let showingWelcome = false;
+
+    const WELCOME_HTML = `
+<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0b0b1a;font-family:'Segoe UI',system-ui,sans-serif;color:#e2e8f0;padding:40px">
+  <div style="max-width:520px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">⚡</div>
+    <h1 style="font-size:32px;color:#38bdf8;margin-bottom:12px">Real Time</h1>
+    <p style="font-size:16px;color:#94a3b8;margin-bottom:32px">No HTML or CSS files found in this directory.<br>Create a file to get started — the preview updates automatically.</p>
+    <div style="background:#1e293b;border-radius:12px;padding:24px;text-align:left;border:1px solid #2a2a3e">
+      <div style="font-size:12px;color:#475569;margin-bottom:12px;font-family:'SF Mono','Fira Code',monospace">index.html</div>
+      <pre style="margin:0;font-family:'SF Mono','Fira Code',monospace;font-size:14px;color:#38bdf8;line-height:1.8">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello World&lt;/h1&gt;
+  &lt;p&gt;Start building!&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+    </div>
+    <p style="font-size:13px;color:#475569;margin-top:20px">Watching for .html and .css files...</p>
+  </div>
+</div>`;
+
+    function showWelcomeScreen() {
+      const doc = preview.contentDocument;
+      doc.open();
+      doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0">' + WELCOME_HTML + '</body></html>');
+      doc.close();
+      showingWelcome = true;
+      iframeReady = false;
+      lastHtml = '';
+      lastCss = '';
+      infoEl.textContent = '0 files — waiting';
+    }
+
+    function renderFiles(files) {
+      // Merge incoming files into cache
+      let changed = false;
+      const incomingKeys = Object.keys(files);
+      for (const [path, content] of Object.entries(files)) {
+        if (cachedFiles[path] !== content) {
+          cachedFiles[path] = content;
+          changed = true;
+        }
+      }
+
+      // Check if this is an empty state (server sent empty files object)
+      const fileCount = Object.keys(cachedFiles).length;
+      if (fileCount === 0) {
+        if (!showingWelcome) showWelcomeScreen();
+        return;
+      }
+
+      if (!changed && !showingWelcome) return;
+      showingWelcome = false;
+
+      // Separate HTML and CSS from cache
+      let htmlContent = '';
+      let cssContent = '';
+
+      for (const [path, content] of Object.entries(cachedFiles)) {
+        if (path.endsWith('.html') || path.endsWith('.htm')) {
+          htmlContent += content + '\n';
+        } else if (path.endsWith('.css')) {
+          cssContent += content + '\n';
+        }
+      }
+
+      // Strip <html>, <head>, <body> wrappers from HTML to get body content
+      // But inject CSS separately via <style> tag
+      let bodyHtml = htmlContent;
+      // Remove doctype, html, head, body tags — extract inner content
+      bodyHtml = bodyHtml.replace(/<!DOCTYPE[^>]*>/gi, '');
+      bodyHtml = bodyHtml.replace(/<\/?html[^>]*>/gi, '');
+      bodyHtml = bodyHtml.replace(/<head[\s\S]*?<\/head>/gi, '');
+      bodyHtml = bodyHtml.replace(/<\/?body[^>]*>/gi, '');
+
+      const doc = preview.contentDocument;
+      if (!iframeReady) {
+        doc.open();
+        doc.write(`<!DOCTYPE html>\n<html><head><meta charset="UTF-8"><style id="rt-style">${cssContent}</style></head><body>${bodyHtml}</body></html>`);
+        doc.close();
+        iframeReady = true;
+      } else {
+        if (cssContent !== lastCss) {
+          const s = doc.getElementById('rt-style');
+          if (s) s.textContent = cssContent;
+        }
+        if (bodyHtml !== lastHtml) {
+          morphBody(doc, bodyHtml);
+        }
+      }
+      lastHtml = bodyHtml;
+      lastCss = cssContent;
+
+      infoEl.textContent = `${fileCount} files`;
+      resizeOverlay();
+    }
+
+    // --- HTML/CSS reconstruction (same as before but inline) ---
+    const VOID = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+
+    function reconstructHtml(objects) {
+      return objects.map(nodeToHtml).join('\n');
+    }
+    function nodeToHtml(obj) {
+      const attrs = obj.attributes.map(([k,v]) => v ? `${k}="${v.replace(/"/g,'&quot;')}"` : k).join(' ');
+      const open = attrs ? `<${obj.tag} ${attrs}>` : `<${obj.tag}>`;
+      if (VOID.has(obj.tag)) return open;
+      const text = obj.text_content || '';
+      const children = obj.children.map(nodeToHtml).join('\n');
+      return `${open}${text}${children}</${obj.tag}>`;
+    }
+    function reconstructCss(directives) {
+      const groups = new Map();
+      for (const d of directives) {
+        if (!groups.has(d.selector)) groups.set(d.selector, new Map());
+        groups.get(d.selector).set(d.property, d.value);
+      }
+      const rules = [];
+      for (const [sel, props] of groups) {
+        const decls = Array.from(props.entries()).map(([p,v]) => `${p}:${v}`).join(';');
+        rules.push(`${sel}{${decls}}`);
+      }
+      return rules.join('\n');
+    }
+
+    // --- DOM Morph: minimal diff to avoid flicker ---
+    function morphBody(doc, newHtml) {
+      const template = doc.createElement('template');
+      template.innerHTML = newHtml;
+      const newNodes = template.content.childNodes;
+      const body = doc.body;
+
+      // Sync children count
+      while (body.childNodes.length > newNodes.length) {
+        body.removeChild(body.lastChild);
+      }
+
+      for (let i = 0; i < newNodes.length; i++) {
+        const newNode = newNodes[i];
+        const oldNode = body.childNodes[i];
+
+        if (!oldNode) {
+          // Append new node
+          body.appendChild(newNode.cloneNode(true));
+        } else if (oldNode.nodeType !== newNode.nodeType ||
+                   oldNode.nodeName !== newNode.nodeName) {
+          // Different node type/tag — replace
+          body.replaceChild(newNode.cloneNode(true), oldNode);
+        } else if (oldNode.nodeType === 3) {
+          // Text node — update if different
+          if (oldNode.textContent !== newNode.textContent) {
+            oldNode.textContent = newNode.textContent;
+          }
+        } else if (oldNode.nodeType === 1) {
+          // Element — sync attributes then recurse children
+          morphAttributes(oldNode, newNode);
+          morphChildren(oldNode, newNode);
+        }
+      }
+    }
+
+    function morphAttributes(oldEl, newEl) {
+      // Remove old attributes not in new
+      for (const attr of [...oldEl.attributes]) {
+        if (!newEl.hasAttribute(attr.name)) {
+          oldEl.removeAttribute(attr.name);
+        }
+      }
+      // Set new/changed attributes
+      for (const attr of [...newEl.attributes]) {
+        if (oldEl.getAttribute(attr.name) !== attr.value) {
+          oldEl.setAttribute(attr.name, attr.value);
+        }
+      }
+    }
+
+    function morphChildren(oldEl, newEl) {
+      const oldChildren = oldEl.childNodes;
+      const newChildren = newEl.childNodes;
+
+      while (oldChildren.length > newChildren.length) {
+        oldEl.removeChild(oldEl.lastChild);
+      }
+
+      for (let i = 0; i < newChildren.length; i++) {
+        const nc = newChildren[i];
+        const oc = oldChildren[i];
+
+        if (!oc) {
+          oldEl.appendChild(nc.cloneNode(true));
+        } else if (oc.nodeType !== nc.nodeType || oc.nodeName !== nc.nodeName) {
+          oldEl.replaceChild(nc.cloneNode(true), oc);
+        } else if (oc.nodeType === 3) {
+          if (oc.textContent !== nc.textContent) {
+            oc.textContent = nc.textContent;
+          }
+        } else if (oc.nodeType === 1) {
+          morphAttributes(oc, nc);
+          morphChildren(oc, nc);
+        }
+      }
+    }
+
+    // --- Overlay ---
+    function renderOverlay() {
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+      if (!showOutlines && !showLabels) return;
+      try {
+        const doc = preview.contentDocument;
+        if (!doc || !doc.body) return;
+        for (const el of doc.body.querySelectorAll('*')) {
+          const r = el.getBoundingClientRect();
+          if (r.width === 0 && r.height === 0) continue;
+          if (showOutlines) {
+            ctx.strokeStyle = 'rgba(56,189,248,0.5)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(r.left+.5, r.top+.5, r.width, r.height);
+          }
+          if (showLabels) {
+            const tag = el.tagName.toLowerCase();
+            const cls = el.className ? `.${el.className.split(' ')[0]}` : '';
+            const label = tag + cls;
+            ctx.font = '9px monospace';
+            const tw = ctx.measureText(label).width + 4;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(r.left, r.top-12, tw, 12);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillText(label, r.left+2, r.top-3);
+          }
+        }
+      } catch {}
+    }
+
+    // --- WebSocket: receives raw file contents ---
+    function connect() {
+      const ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onopen = () => {
+        connEl.textContent = 'Connected';
+        connEl.className = 'st-ok';
+      };
+      ws.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          // Support both old format (RenderMessage) and new format (raw files)
+          if (data.files) {
+            scheduleRender(data.files);
+          } else if (data.objects) {
+            // Legacy: already parsed RenderMessage
+            const html = reconstructHtml(data.objects);
+            const css = reconstructCss(data.directives);
+            const doc = preview.contentDocument;
+            if (!iframeReady) {
+              doc.open();
+              doc.write(`<!DOCTYPE html>\n<html><head><meta charset="UTF-8"><style id="rt-style">${css}</style></head><body>${html}</body></html>`);
+              doc.close();
+              iframeReady = true;
+            } else {
+              if (css !== lastCss) { const s = doc.getElementById('rt-style'); if (s) s.textContent = css; }
+              if (html !== lastHtml) doc.body.innerHTML = html;
+            }
+            lastHtml = html; lastCss = css;
+            infoEl.textContent = `${data.objects.length} objects · ${data.directives.length} directives`;
+          }
+        } catch {}
+      };
+      ws.onclose = () => {
+        connEl.textContent = 'Reconnecting...';
+        connEl.className = 'st-err';
+        setTimeout(connect, 1000);
+      };
+      ws.onerror = () => ws.close();
+    }
+    // connect and resize are called after WASM init
+  </script>
+</body>
+</html>

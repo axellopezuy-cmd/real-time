@@ -1,0 +1,22 @@
+# Build artifacts
+target/
+panel-browser/dist/
+panel-browser/node_modules/
+node_modules/
+parser-wasm/target/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+
+# Dev artifacts
+CONTEXT_TRANSFER.md
+
+# Cargo lock for libraries (keep for binaries)
+# Cargo.lock is kept — this is a binary project
+
+# WASM build output
+parser-wasm/pkg/

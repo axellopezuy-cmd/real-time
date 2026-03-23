@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Time — Desarrollo en vivo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">⚡ Real Time</div>
+    <ul class="nav-links">
+      <li><a href="#how">Cómo funciona</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#speed">Velocidad</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="https://github.com" class="btn btn-ghost">GitHub</a>
+      <a href="#pricing" class="btn btn-primary">Descargar</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero" id="hero">
+    <div class="hero-content">
+      <span class="badge">Open Source — Rust + WASM</span>
+      <h1>Escribí HTML.<br>Velo al instante.</h1>
+      <p class="hero-sub">Real Time renderiza tu código en el navegador mientras escribís. Sin refresh. Sin build. Sin config. Un solo comando y estás trabajando.</p>
+      <div class="hero-ctas">
+        <a href="#pricing" class="btn btn-primary btn-lg">Empezar gratis</a>
+        <a href="#how" class="btn btn-outline btn-lg">Ver cómo funciona</a>
+      </div>
+      <p class="hero-note">Funciona en Linux, macOS y Windows · 33KB de WASM · Cero dependencias JS</p>
+    </div>
+    <div class="hero-visual">
+      <div class="code-window">
+        <div class="code-titlebar">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span class="code-title">terminal</span>
+        </div>
+        <pre class="code-body"><span class="c-prompt">$</span> realtime ./mi-proyecto
+
+<span class="c-ok">⚡ Real Time — One-Click Experience</span>
+<span class="c-dim">Directorio: ./mi-proyecto</span>
+<span class="c-dim">Panel browser en</span> <span class="c-link">http://127.0.0.1:3000</span>
+<span class="c-dim">Escaneando 4 archivos...</span>
+<span class="c-dim">File watcher: raw inotify (zero debounce)</span>
+
+<span class="c-ok">Real Time listo. Ctrl+C para salir.</span>
+
+<span class="c-arrow">→</span> index.html
+<span class="c-arrow">→</span> style.css
+<span class="c-arrow">→</span> components.html</pre>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <section class="stats-bar">
+    <div class="stat">
+      <span class="stat-number">&lt;50ms</span>
+      <span class="stat-label">Latencia tecla→pantalla</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">33KB</span>
+      <span class="stat-label">WASM parser (gzip)</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">0</span>
+      <span class="stat-label">Archivos de config</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">1</span>
+      <span class="stat-label">Comando para empezar</span>
+    </div>
+  </section>
+
+  <!-- Cómo funciona -->
+  <section class="how-it-works" id="how">
+    <h2 class="section-title">Un comando. Eso es todo.</h2>
+    <p class="section-sub">No hay webpack. No hay bundler. No hay node_modules. Solo tu código y el resultado.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Instalá</h3>
+        <div class="step-code">curl -fsSL https://realtime.dev/install.sh | sh</div>
+        <p>Un binario estático. Sin dependencias. Sin runtime.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Ejecutá</h3>
+        <div class="step-code">realtime ./mi-proyecto</div>
+        <p>Apuntá a cualquier carpeta con archivos HTML y CSS.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Desarrollá</h3>
+        <p>Abrí tu editor, escribí código. El browser se actualiza en tiempo real mientras tipeás. Cada tecla, cada cambio, al instante.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pipeline técnico -->
+  <section class="pipeline">
+    <h2 class="section-title">Arquitectura de velocidad</h2>
+    <p class="section-sub">Cada milisegundo cuenta. Así es como eliminamos la latencia.</p>
+    <div class="pipeline-flow">
+      <div class="pipe-step">
+        <div class="pipe-icon">⌨️</div>
+        <div class="pipe-label">Editor</div>
+        <div class="pipe-detail">Auto-save 50ms</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">👁️</div>
+        <div class="pipe-label">inotify</div>
+        <div class="pipe-detail">Zero debounce</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🦀</div>
+        <div class="pipe-label">Rust Server</div>
+        <div class="pipe-detail">Broadcast directo</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🔌</div>
+        <div class="pipe-label">WebSocket</div>
+        <div class="pipe-detail">Delta updates</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🌐</div>
+        <div class="pipe-label">Browser</div>
+        <div class="pipe-detail">DOM morphing</div>
+      </div>
+    </div>
+    <div class="pipeline-note">
+      Sin relay intermediario. Sin parseo en el hot path. El contenido viaja raw del disco al DOM.
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <h2 class="section-title">Todo lo que necesitás</h2>
+    <p class="section-sub">Construido para devs que valoran velocidad y simplicidad</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🦀</div>
+        <h3>Rust nativo</h3>
+        <p>Server compilado en Rust con Axum. Binario estático, sin runtime, sin garbage collector. Arranca en milisegundos.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>WASM Parser</h3>
+        <p>Parsers de HTML y CSS compilados a WebAssembly (33KB gzip). Corren en el browser a velocidad near-native para overlays y análisis.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3>DOM Morphing</h3>
+        <p>No hacemos innerHTML. Diffing inteligente del DOM que solo toca los nodos que cambiaron. Cero parpadeo, cero flicker.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>CSS real</h3>
+        <p>Grid, Flexbox, variables, animaciones, media queries — todo funciona. Es un browser real, no una simulación.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Inspector integrado</h3>
+        <p>Outlines y labels como Chrome DevTools. Activá overlays para ver la estructura de tu layout sin salir de Real Time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📡</div>
+        <h3>WebSocket nativo</h3>
+        <p>Conexión persistente con reconexión automática. Solo envía los archivos que cambiaron (delta updates).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Velocidad / Comparación -->
+  <section class="speed" id="speed">
+    <h2 class="section-title">Velocidad que se siente</h2>
+    <p class="section-sub">No es marketing. Son números reales.</p>
+    <div class="speed-grid">
+      <div class="speed-card">
+        <h3>Real Time</h3>
+        <div class="speed-bar-container">
+          <div class="speed-bar rt" style="width: 8%"></div>
+        </div>
+        <span class="speed-value">&lt;50ms</span>
+      </div>
+      <div class="speed-card">
+        <h3>Browser Sync</h3>
+        <div class="speed-bar-container">
+          <div class="speed-bar other" style="width: 40%"></div>
+        </div>
+        <span class="speed-value">~200ms</span>
+      </div>
+      <div class="speed-card">
+        <h3>Vite HMR</h3>
+        <div class="speed-bar-container">
+          <div class="speed-bar other" style="width: 20%"></div>
+        </div>
+        <span class="speed-value">~100ms</span>
+      </div>
+      <div class="speed-card">
+        <h3>Manual refresh</h3>
+        <div class="speed-bar-container">
+          <div class="speed-bar slow" style="width: 100%"></div>
+        </div>
+        <span class="speed-value">~500ms+</span>
+      </div>
+    </div>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Característica</th>
+          <th>Real Time</th>
+          <th>Browser Sync</th>
+          <th>Vite HMR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tiempo de setup</td>
+          <td class="check">0 segundos</td>
+          <td>~2 minutos</td>
+          <td>~5 minutos</td>
+        </tr>
+        <tr>
+          <td>Archivos de config</td>
+          <td class="check">Ninguno</td>
+          <td>1-2</td>
+          <td>3+</td>
+        </tr>
+        <tr>
+          <td>Dependencias JS</td>
+          <td class="check">0</td>
+          <td>~50</td>
+          <td>~200+</td>
+        </tr>
+        <tr>
+          <td>Update de CSS</td>
+          <td class="check">Instantáneo</td>
+          <td>~200ms</td>
+          <td>~100ms</td>
+        </tr>
+        <tr>
+          <td>Preview HTML en vivo</td>
+          <td class="check">Sí</td>
+          <td>Full reload</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Inspector DOM</td>
+          <td class="check">Integrado</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Peso del binario</td>
+          <td class="check">~5MB</td>
+          <td>~30MB (node)</td>
+          <td>~100MB+ (node)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Casos de uso -->
+  <section class="use-cases">
+    <h2 class="section-title">¿Para quién es Real Time?</h2>
+    <p class="section-sub">Si escribís HTML y CSS, Real Time es para vos</p>
+    <div class="cases-grid">
+      <div class="case-card">
+        <div class="case-icon">🎓</div>
+        <h3>Estudiantes</h3>
+        <p>Aprendé HTML y CSS viendo los resultados al instante. Sin configurar nada, sin frustraciones. Escribí y mirá.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-icon">🎨</div>
+        <h3>Diseñadores</h3>
+        <p>Prototipá interfaces rápido. Ajustá colores, espaciados y layouts viendo cada cambio en tiempo real.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-icon">💻</div>
+        <h3>Frontend Devs</h3>
+        <p>Maquetá componentes HTML/CSS puros a máxima velocidad. Perfecto para landing pages, emails y prototipos.</p>
+      </div>
+      <div class="case-card">
+        <div class="case-icon">👨‍🏫</div>
+        <h3>Profesores</h3>
+        <p>Enseñá web development con feedback visual instantáneo. Tus alumnos ven el resultado mientras explicás.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials" id="testimonials">
+    <h2 class="section-title">Lo que dicen los devs</h2>
+    <div class="testimonial-grid">
+      <blockquote class="testimonial">
+        <p>"Instalé Real Time y en 3 segundos estaba trabajando. Literalmente un comando. Nunca volví a hacer F5."</p>
+        <footer>
+          <div class="avatar"></div>
+          <div>
+            <strong>Lucas Fernández</strong>
+            <span>Frontend Dev, Buenos Aires</span>
+          </div>
+        </footer>
+      </blockquote>
+      <blockquote class="testimonial">
+        <p>"El DOM morphing es increíble. Puedo editar CSS y el layout se actualiza sin perder el scroll ni el estado de mis forms."</p>
+        <footer>
+          <div class="avatar"></div>
+          <div>
+            <strong>Carolina Ruiz</strong>
+            <span>UI Designer, Medellín</span>
+          </div>
+        </footer>
+      </blockquote>
+      <blockquote class="testimonial">
+        <p>"Lo uso para enseñar HTML en la universidad. Los alumnos ven el resultado mientras escriben. Cambió mis clases."</p>
+        <footer>
+          <div class="avatar"></div>
+          <div>
+            <strong>Prof. Martín Sosa</strong>
+            <span>Universidad de Montevideo</span>
+          </div>
+        </footer>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section class="tech-stack">
+    <h2 class="section-title">Construido con lo mejor</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div class="tech-logo">🦀</div>
+        <span>Rust</span>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo">🕸️</div>
+        <span>WebAssembly</span>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo">⚙️</div>
+        <span>Axum</span>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo">🔌</div>
+        <span>WebSocket</span>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo">👁️</div>
+        <span>inotify</span>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo">📦</div>
+        <span>rust-embed</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <h2 class="section-title">Gratis. Open Source. Para siempre.</h2>
+    <p class="section-sub">Real Time es software libre bajo licencia MIT</p>
+    <div class="pricing-cards">
+      <div class="price-card">
+        <h3>Community</h3>
+        <div class="price">$0<span>/siempre</span></div>
+        <ul class="price-features">
+          <li>✓ Proyectos ilimitados</li>
+          <li>✓ Live preview completo</li>
+          <li>✓ WASM parser incluido</li>
+          <li>✓ DOM morphing</li>
+          <li>✓ Inspector integrado</li>
+          <li>✓ Código fuente completo</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block">Descargar ahora</a>
+      </div>
+      <div class="price-card featured">
+        <div class="popular-badge">Recomendado</div>
+        <h3>Sponsor</h3>
+        <div class="price">$5<span>/mes</span></div>
+        <ul class="price-features">
+          <li>✓ Todo lo de Community</li>
+          <li>✓ Soporte prioritario</li>
+          <li>✓ Acceso a beta features</li>
+          <li>✓ Badge de sponsor</li>
+          <li>✓ Votá en el roadmap</li>
+          <li>✓ Apoyás el open source</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block">Ser Sponsor</a>
+      </div>
+      <div class="price-card">
+        <h3>Enterprise</h3>
+        <div class="price">Custom</div>
+        <ul class="price-features">
+          <li>✓ Todo lo de Sponsor</li>
+          <li>✓ Soporte dedicado</li>
+          <li>✓ Integración custom</li>
+          <li>✓ SLA garantizado</li>
+          <li>✓ Consultoría directa</li>
+          <li>✓ Licencia comercial</li>
+        </ul>
+        <a href="#" class="btn btn-outline btn-block">Contactar</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Final -->
+  <section class="final-cta">
+    <h2>Dejá de hacer refresh.</h2>
+    <p>Un comando. Cero config. Velocidad real.</p>
+    <div class="cta-install">
+      <code>curl -fsSL https://realtime.dev/install.sh | sh</code>
+    </div>
+    <div class="hero-ctas" style="justify-content:center; margin-top:24px;">
+      <a href="#" class="btn btn-primary btn-lg">Descargar Real Time</a>
+      <a href="https://github.com" class="btn btn-outline btn-lg">Ver en GitHub</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>⚡ Real Time</h4>
+        <p class="footer-desc">Desarrollo web en tiempo real. Construido con Rust y WebAssembly. Open source bajo licencia MIT.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Producto</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#speed">Velocidad</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Recursos</h4>
+        <ul>
+          <li><a href="#">Documentación</a></li>
+          <li><a href="#">Guía de inicio</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">Contribuir</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Comunidad</h4>
+        <ul>
+          <li><a href="#">GitHub</a></li>
+          <li><a href="#">Discord</a></li>
+          <li><a href="#">Twitter</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Real Time. Software libre bajo licencia MIT. Hecho con 🦀 y ⚡</p>
+    </div>
+  </footer>
+
+</body>
+</html>

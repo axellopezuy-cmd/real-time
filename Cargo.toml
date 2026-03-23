@@ -1,0 +1,4 @@
+[workspace]
+members = ["shared", "parser", "relay", "realtime-cli"]
+exclude = ["parser-wasm"]
+resolver = "2"
