@@ -13,7 +13,7 @@ That's it. Your browser opens and shows your page. Every keystroke updates the p
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/axellopezuy-cmd/real-time/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/axellopezuy-cmd/real-time/main/install.sh | bash
 ```
 
 Or build from source:
