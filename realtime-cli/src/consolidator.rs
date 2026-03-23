@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use shared::{Directriz, ObjetoHtml, RenderMessage};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};

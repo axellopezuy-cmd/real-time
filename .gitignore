@@ -14,6 +14,8 @@ Thumbs.db
 
 # Dev artifacts
 CONTEXT_TRANSFER.md
+.kiro/
+.kiro/
 
 # Cargo lock for libraries (keep for binaries)
 # Cargo.lock is kept — this is a binary project

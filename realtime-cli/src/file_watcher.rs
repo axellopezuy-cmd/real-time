@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher, Event, EventKind};
 use std::path::{Path, PathBuf};
 use tokio::sync::mpsc;
